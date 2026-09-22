@@ -444,7 +444,8 @@ async def linkedin_oauth_get_callback(
         )
 
     try:
-        token_data = await linkedin_oauth_service.exchange_code_for_token(code)
+        active_redirect = linkedin_oauth_service.redirect_uri
+        token_data = await linkedin_oauth_service.exchange_code_for_token(code, active_redirect)
         access_token = token_data.get("access_token", "")
         if not access_token:
             raise ValueError("Failed to obtain LinkedIn access token.")
@@ -510,7 +511,8 @@ async def linkedin_oauth_callback(req: LinkedInOAuthCallbackRequest):
         raise HTTPException(status_code=400, detail=err_msg)
 
     try:
-        token_data = await linkedin_oauth_service.exchange_code_for_token(req.code, req.redirect_uri)
+        active_redirect = req.redirect_uri or linkedin_oauth_service.redirect_uri
+        token_data = await linkedin_oauth_service.exchange_code_for_token(req.code, active_redirect)
         access_token = token_data.get("access_token", "")
         if not access_token:
             logger.error("[LinkedIn OAuth POST Callback] No access token returned.")

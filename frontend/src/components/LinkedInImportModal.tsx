@@ -58,7 +58,7 @@ export const LinkedInImportModal: React.FC<LinkedInImportModalProps> = ({
   // Mode: "input" (OAuth connect or URL/text) | "review" (review & edit extracted info)
   const [step, setStep] = useState<'input' | 'review'>('input');
   const [inputTab, setInputTab] = useState<'oauth' | 'url' | 'text'>('oauth');
-  const [linkedinUrl, setLinkedinUrl] = useState(activeResume.contact_info?.linkedin || 'https://www.linkedin.com/in/alex-morgan-engineer');
+  const [linkedinUrl, setLinkedinUrl] = useState(activeResume.contact_info?.linkedin || '');
   const [rawText, setRawText] = useState('');
   
   // 4 Clear OAuth Frontend States:

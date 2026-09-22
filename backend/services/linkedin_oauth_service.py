@@ -366,10 +366,14 @@ class LinkedInOAuthService:
         sub = user_info.get("sub", "")
         locale = user_info.get("locale", {})
         location = ""
+        languages = []
         if isinstance(locale, dict):
             country = locale.get("country", "")
             if country:
                 location = country
+            lang = locale.get("language", "")
+            if lang:
+                languages.append(lang.upper())
 
         logger.info(f"[LinkedIn Profile Builder] Built authentic candidate profile for '{full_name}' ({email}). No dummy data used.")
 
@@ -390,7 +394,7 @@ class LinkedInOAuthService:
             "projects": [],
             "publications": [],
             "achievements": [],
-            "languages": ["English"],
+            "languages": languages,
             "profile_links": {
                 "linkedin": f"https://www.linkedin.com/in/{sub}" if sub else "https://www.linkedin.com"
             },

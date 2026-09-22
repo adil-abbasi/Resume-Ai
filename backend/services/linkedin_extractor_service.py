@@ -291,10 +291,10 @@ class MockLinkedInExtractorProvider(LinkedInExtractorProvider):
         professional ATS-friendly ResumeProfile. Preserves all details without
         aggressive shortening or dropping content.
         """
-        full_name = extracted.get("full_name") or "Professional Candidate"
-        headline = extracted.get("headline") or "Software Engineer"
-        location = extracted.get("location") or "San Francisco, CA"
-        summary = extracted.get("summary") or ""
+        full_name = extracted.get("full_name") or (existing_profile.contact_info.full_name if existing_profile else "") or "Candidate"
+        headline = extracted.get("headline") or (existing_profile.contact_info.title if existing_profile else "")
+        location = extracted.get("location") or (existing_profile.contact_info.location if existing_profile else "")
+        summary = extracted.get("summary") or (existing_profile.summary if existing_profile else "")
         email = extracted.get("email") or (existing_profile.contact_info.email if existing_profile else "")
         phone = extracted.get("phone") or (existing_profile.contact_info.phone if existing_profile else "")
 
@@ -303,11 +303,11 @@ class MockLinkedInExtractorProvider(LinkedInExtractorProvider):
             full_name=full_name,
             title=headline,
             location=location,
-            email=email or "candidate@professional.dev",
-            phone=phone or "+1 (555) 019-2834",
+            email=email,
+            phone=phone,
             linkedin=extracted.get("linkedin_url") or (existing_profile.contact_info.linkedin if existing_profile else ""),
-            portfolio=extracted.get("profile_links", {}).get("portfolio", ""),
-            github=extracted.get("profile_links", {}).get("github", "")
+            portfolio=extracted.get("profile_links", {}).get("portfolio", "") or (existing_profile.contact_info.portfolio if existing_profile else ""),
+            github=extracted.get("profile_links", {}).get("github", "") or (existing_profile.contact_info.github if existing_profile else "")
         )
 
         # 2. Work Experience (Preserve all highlights!)
@@ -357,11 +357,11 @@ class MockLinkedInExtractorProvider(LinkedInExtractorProvider):
                 technical.append(s)
 
         skills_group = SkillsGroup(
-            technical_skills=technical if technical else raw_skills[:6],
-            frameworks_libraries=frameworks,
-            developer_tools=tools,
-            soft_skills=soft,
-            languages=extracted.get("languages", ["English (Fluent)"]),
+            technical_skills=technical if technical else (existing_profile.skills.technical_skills if existing_profile else []),
+            frameworks_libraries=frameworks if frameworks else (existing_profile.skills.frameworks_libraries if existing_profile else []),
+            developer_tools=tools if tools else (existing_profile.skills.developer_tools if existing_profile else []),
+            soft_skills=soft if soft else (existing_profile.skills.soft_skills if existing_profile else []),
+            languages=extracted.get("languages", existing_profile.skills.languages if existing_profile else []),
             other=[]
         )
 
@@ -388,11 +388,11 @@ class MockLinkedInExtractorProvider(LinkedInExtractorProvider):
             ))
 
         # 7. Achievements & Languages
-        achievements = list(extracted.get("achievements", []))
-        languages = list(extracted.get("languages", ["English (Native)"]))
+        achievements = list(extracted.get("achievements", existing_profile.achievements if existing_profile else []))
+        languages = list(extracted.get("languages", existing_profile.languages if existing_profile else []))
 
         profile_id = f"linkedin-resume-{uuid.uuid4().hex[:6]}"
-        resume_title = f"{full_name} - {headline} (LinkedIn Generated)"
+        resume_title = f"{full_name} - {headline}".strip(" - ") or "LinkedIn Imported Resume"
 
         return ResumeProfile(
             id=profile_id,
@@ -401,13 +401,13 @@ class MockLinkedInExtractorProvider(LinkedInExtractorProvider):
             contact_info=contact,
             summary=summary,
             skills=skills_group,
-            work_experience=work_exp,
-            education=education_items,
-            projects=projects_items,
-            certifications=cert_items,
+            work_experience=work_exp or (existing_profile.work_experience if existing_profile else []),
+            education=education_items or (existing_profile.education if existing_profile else []),
+            projects=projects_items or (existing_profile.projects if existing_profile else []),
+            certifications=cert_items or (existing_profile.certifications if existing_profile else []),
             achievements=achievements,
             languages=languages,
-            career_interests=f"Seeking senior/staff opportunities aligned with {headline}.",
+            career_interests=f"Target role: {headline}." if headline else "",
             raw_resume_text=f"LinkedIn Profile Import: {full_name} | {headline} | {location}\n{summary}"
         )
 
