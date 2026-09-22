@@ -27,7 +27,15 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { ResumeProfile, ATSAnalysisResult, TemplateRecommendation, TemplateCustomization } from '../types';
-import { apiService, sampleSWEProfile, sampleGradProfile, defaultTemplateCustomization } from '../services/api';
+import { 
+  apiService, 
+  sampleSWEProfile, 
+  sampleGradProfile, 
+  defaultTemplateCustomization,
+  calculateLocalATSScore,
+  parseRawTextClientSide,
+  API_BASE_URL
+} from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 interface AnalyzerViewProps {
@@ -50,6 +58,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   const { isPro, isProMax, openPricingModal, openRewardedAdModal } = useAuth();
 
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatusMessage, setUploadStatusMessage] = useState<string>('Analyzing document...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [rawText, setRawText] = useState('');
   const [activeTab, setActiveTab] = useState<'upload' | 'text' | 'sample'>('upload');
@@ -73,9 +82,16 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   // Run ATS analysis
   const runAnalysis = async (profile: ResumeProfile, fileName?: string) => {
     setIsUploading(true);
+    setUploadStatusMessage('Evaluating ATS keyword matching & resume structure...');
     setErrorMessage(null);
+
+    const coldStartTimer = setTimeout(() => {
+      setUploadStatusMessage('Connecting to AI Cloud Engine... (Waking up server from standby, please wait ~15s)');
+    }, 2800);
+
     try {
       const res = await apiService.analyzeResume(profile);
+      clearTimeout(coldStartTimer);
       setAnalysisResult(res);
       setActiveResume(profile);
       if (fileName) {
@@ -85,8 +101,13 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
         setSelectedTemplate(res.recommended_templates[0]);
       }
     } catch (err: any) {
-      console.error('Analysis error:', err);
-      setErrorMessage(err.message || 'Failed to analyze resume. Please verify the file content and try again.');
+      clearTimeout(coldStartTimer);
+      console.warn('Analysis error, applying instant client-side ATS analysis:', err);
+      // Fallback guarantee: Never block user with an unhandled error
+      const localResult = calculateLocalATSScore(profile);
+      setAnalysisResult(localResult);
+      setActiveResume(profile);
+      if (fileName) setUploadedFileName(fileName);
     } finally {
       setIsUploading(false);
     }
@@ -98,13 +119,23 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
     if (!file) return;
 
     setIsUploading(true);
+    setUploadStatusMessage(`Parsing "${file.name}"...`);
     setErrorMessage(null);
+
+    const coldStartTimer = setTimeout(() => {
+      setUploadStatusMessage('Connecting to AI Cloud Engine... (Waking up server from standby, please wait ~15s)');
+    }, 2800);
+
     try {
       const parsed = await apiService.parseDocument(file);
+      clearTimeout(coldStartTimer);
       await runAnalysis(parsed.profile, file.name);
     } catch (err: any) {
+      clearTimeout(coldStartTimer);
       console.error('Upload error:', err);
-      setErrorMessage(err.message || 'Failed to parse uploaded document. Ensure it is a valid PDF or DOCX file.');
+      setErrorMessage(
+        'Server is currently waking up or unreachable. You can paste the resume text directly in the "Paste Text" tab for instant client-side analysis, or try again in a few moments.'
+      );
       setIsUploading(false);
     }
   };
@@ -113,13 +144,25 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   const handleTextSubmit = async () => {
     if (!rawText.trim()) return;
     setIsUploading(true);
+    setUploadStatusMessage('Extracting sections from pasted text...');
     setErrorMessage(null);
+
     try {
-      const parsed = await apiService.parseDocument(undefined, rawText);
-      await runAnalysis(parsed.profile, 'Pasted Resume Text');
+      let parsedProfile: ResumeProfile;
+      try {
+        const parsed = await apiService.parseDocument(undefined, rawText);
+        parsedProfile = parsed.profile;
+      } catch (backendErr) {
+        console.warn('Backend parse failed, parsing text locally:', backendErr);
+        parsedProfile = parseRawTextClientSide(rawText);
+      }
+      await runAnalysis(parsedProfile, 'Pasted Resume Text');
     } catch (err: any) {
       console.error('Text parse error:', err);
-      setErrorMessage(err.message || 'Failed to parse pasted resume text.');
+      // Direct local parse guarantee
+      const parsedProfile = parseRawTextClientSide(rawText);
+      await runAnalysis(parsedProfile, 'Pasted Resume Text');
+    } finally {
       setIsUploading(false);
     }
   };
@@ -210,13 +253,45 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
         )}
       </div>
 
-      {/* Error Alert Banner */}
+      {/* Active Processing / Cold-start Progress Banner */}
+      {isUploading && (
+        <div className="p-4 rounded-xl bg-brand-950/60 border border-brand-500/40 flex items-center gap-3 text-brand-200 text-xs animate-pulse">
+          <RefreshCw className="w-4 h-4 text-brand-400 animate-spin shrink-0" />
+          <div className="flex-1 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-semibold text-white">Analyzing Resume: </span>
+              <span className="text-brand-300">{uploadStatusMessage}</span>
+            </div>
+            <span className="text-[10px] font-mono bg-brand-900/60 px-2 py-0.5 rounded text-brand-300">
+              Cloud AI + Built-in NLP
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Error Alert Banner with Instant Recovery Options */}
       {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-950/60 border border-red-500/40 flex items-start gap-3 text-red-200 text-xs animate-fadeIn">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <span className="font-semibold">Analysis Failed:</span>
-            <p className="text-red-300">{errorMessage}</p>
+        <div className="p-4 rounded-xl bg-red-950/70 border border-red-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-200 text-xs animate-fadeIn">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <span className="font-semibold text-white">Connection Notice:</span>
+              <p className="text-red-300">{errorMessage}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => runAnalysis(activeResume || sampleSWEProfile, 'Instant Analysis')}
+              className="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors shadow-sm"
+            >
+              Run Instant Analysis
+            </button>
+            <button
+              onClick={() => { setErrorMessage(null); setActiveTab('text'); }}
+              className="px-2.5 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 text-xs transition-colors"
+            >
+              Paste Text
+            </button>
           </div>
         </div>
       )}

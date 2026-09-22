@@ -308,6 +308,52 @@ class PortfolioDeployResponse(BaseModel):
     message: str
 
 
+# --- GitHub OAuth & Portfolio Publishing Models ---
+
+class GitHubOAuthUrlResponse(BaseModel):
+    configured: bool
+    authorization_url: str
+    client_id: str
+    redirect_uri: str
+    state: str
+    scopes: List[str]
+    message: str
+
+
+class GitHubSessionResponse(BaseModel):
+    session_id: str
+    username: str
+    name: str
+    avatar_url: str
+    email: str
+
+
+class GitHubRepoItem(BaseModel):
+    name: str
+    full_name: str
+    private: bool
+    html_url: str
+    description: str = ""
+    updated_at: str = ""
+
+
+class GitHubPublishRequest(BaseModel):
+    session_id: str
+    config: "PortfolioConfig"
+    repo_name: str
+    is_new_repo: bool = True
+    is_private: bool = False
+
+
+class GitHubPublishResponse(BaseModel):
+    repo_name: str
+    repo_full_name: str
+    html_url: str
+    pages_url: str
+    pushed_files: List[str]
+    message: str
+
+
 # --- Rewarded Ad Models ---
 
 class AdRewardVerificationRequest(BaseModel):

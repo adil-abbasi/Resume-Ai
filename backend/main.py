@@ -28,6 +28,8 @@ from models.auth_schemas import (
     AgentApplyRequest, AgentApplyResponse,
     CoverLetterRequest, CoverLetterResponse,
     PortfolioConfig, PortfolioDeployRequest, PortfolioDeployResponse,
+    GitHubOAuthUrlResponse, GitHubPublishRequest, GitHubPublishResponse,
+    GitHubSessionResponse, GitHubRepoItem,
     AdRewardVerificationRequest, AdRewardVerificationResponse
 )
 from nlp.parser import ResumeParser
@@ -37,6 +39,8 @@ from ai.interview_engine import InterviewEngine
 from ai.rewriter import BulletRewriter
 from ai.cover_letter_engine import CoverLetterEngine
 from ai.portfolio_engine import PortfolioEngine
+from ai.portfolio_html_generator import generate_zip, generate_standalone_html, THEMES
+from services.github_oauth_service import github_oauth_service
 from ai.llm_provider import provider as get_llm_provider
 from export.docx_generator import DocxResumeGenerator
 from data.sample_data import SAMPLE_RESUMES, SAMPLE_JOB_DESCRIPTIONS
@@ -275,6 +279,153 @@ async def deploy_portfolio_endpoint(req: PortfolioDeployRequest, authorization: 
     return PortfolioEngine.deploy_portfolio(req.config)
 
 
+@app.post("/api/portfolio/download")
+async def download_portfolio_zip(payload: Dict[str, Any], authorization: Optional[str] = Header(None)):
+    """
+    Generates and streams a complete portfolio as a ZIP file.
+    ZIP contains: index.html (self-contained, works offline) + README.md (GitHub Pages setup guide).
+    Available for all users (no Pro gate — generation is free, CDN hosting is Pro Max).
+    """
+    profile_data = payload.get("profile")
+    theme = payload.get("theme", "dark_cyber")
+
+    if not profile_data:
+        raise HTTPException(status_code=400, detail="Profile data is required.")
+
+    profile = ResumeProfile(**profile_data) if isinstance(profile_data, dict) else profile_data
+    config = PortfolioEngine.generate_from_profile(profile, theme)
+
+    zip_buffer = generate_zip(config)
+    subdomain = config.subdomain or "portfolio"
+    filename = f"{subdomain}-portfolio.zip"
+
+    return Response(
+        content=zip_buffer.read(),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+# ---------------- GITHUB OAUTH 2.0 & PORTFOLIO PUBLISHER ---------------- #
+
+@app.get("/api/auth/github/url", response_model=GitHubOAuthUrlResponse)
+async def get_github_auth_url():
+    """
+    Returns GitHub OAuth 2.0 authorization URL with CSRF state protection.
+    Returns configured=False gracefully if GITHUB_CLIENT_ID/SECRET are not set.
+    """
+    info = github_oauth_service.get_authorization_url()
+    return GitHubOAuthUrlResponse(**info)
+
+
+@app.get("/api/auth/github/callback")
+async def github_oauth_get_callback(
+    code: Optional[str] = Query(None),
+    state: Optional[str] = Query(None),
+    error: Optional[str] = Query(None),
+    error_description: Optional[str] = Query(None)
+):
+    """
+    Browser redirect endpoint for GitHub OAuth 2.0.
+    Exchanges code server-side, stores token in session, redirects SPA with session_id.
+    """
+    if error:
+        err_detail = error_description or error or "GitHub authorization was cancelled or failed."
+        logger.error(f"[GitHub OAuth Callback] GitHub returned error: {error} — {error_description}")
+        return RedirectResponse(
+            url=f"http://localhost:5173/?github_status=failed&error={urllib.parse.quote(err_detail)}",
+            status_code=303
+        )
+
+    if not code:
+        return RedirectResponse(
+            url="http://localhost:5173/?github_status=failed&error=Missing+authorization+code",
+            status_code=303
+        )
+
+    if not github_oauth_service.validate_state(state):
+        err_detail = "Invalid or expired GitHub OAuth state (CSRF validation failed). Please try again."
+        logger.error(f"[GitHub OAuth Callback] State validation failed: state={state}")
+        return RedirectResponse(
+            url=f"http://localhost:5173/?github_status=failed&error={urllib.parse.quote(err_detail)}",
+            status_code=303
+        )
+
+    try:
+        access_token = await github_oauth_service.exchange_code_for_token(code)
+        user_info = await github_oauth_service.fetch_user_info(access_token)
+        session_id = github_oauth_service.store_session(access_token, user_info)
+        logger.info(f"[GitHub OAuth Callback] Successfully connected GitHub for user '{user_info.get('login', '')}', session={session_id[:8]}...")
+        return RedirectResponse(
+            url=f"http://localhost:5173/?github_status=success&github_session_id={session_id}",
+            status_code=303
+        )
+    except Exception as e:
+        logger.error(f"[GitHub OAuth Callback] Error: {e}", exc_info=True)
+        return RedirectResponse(
+            url=f"http://localhost:5173/?github_status=failed&error={urllib.parse.quote(str(e))}",
+            status_code=303
+        )
+
+
+@app.get("/api/auth/github/session/{session_id}")
+async def get_github_session(session_id: str):
+    """
+    Returns GitHub user public info (no token) for the given session.
+    Frontend uses this to confirm who is connected after the OAuth redirect.
+    """
+    info = github_oauth_service.get_session_public(session_id)
+    if not info:
+        raise HTTPException(status_code=404, detail="GitHub session not found or expired.")
+    return {"session_id": session_id, **info}
+
+
+@app.get("/api/auth/github/repos/{session_id}")
+async def list_github_repos(session_id: str):
+    """Lists the authenticated user's GitHub repositories for the repo picker."""
+    try:
+        repos = await github_oauth_service.list_user_repos(session_id)
+        return repos
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list GitHub repositories: {str(e)}")
+
+
+@app.post("/api/portfolio/publish-github", response_model=GitHubPublishResponse)
+async def publish_portfolio_to_github(req: GitHubPublishRequest, authorization: Optional[str] = Header(None)):
+    """
+    Uploads the complete portfolio project to a GitHub repository.
+    All GitHub API calls are server-side only — access token never exposed to browser.
+    Creates or updates: index.html (full standalone portfolio) + README.md.
+    """
+    from ai.portfolio_html_generator import generate_standalone_html, generate_readme
+
+    # Generate the portfolio files
+    html_content = generate_standalone_html(req.config)
+    readme_content = generate_readme(req.config)
+
+    files = {
+        "index.html": html_content,
+        "README.md": readme_content,
+    }
+
+    try:
+        result = await github_oauth_service.publish_portfolio(
+            session_id=req.session_id,
+            files=files,
+            repo_name=req.repo_name,
+            is_new_repo=req.is_new_repo,
+            is_private=req.is_private,
+            description=f"Personal portfolio for {req.config.hero_headline[:60]}",
+        )
+        return GitHubPublishResponse(**result)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"[Portfolio GitHub Publish] Error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"GitHub publish failed: {str(e)}")
+
 
 # ---------------- 100+ RESUME TEMPLATES ---------------- #
 
@@ -418,11 +569,12 @@ async def linkedin_oauth_get_callback(
     6. Generates complete ATS Resume for Resume Studio.
     7. Stores session and redirects to SPA with session_id.
     """
+    frontend_base = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     if error:
         err_detail = error_description or error or "LinkedIn authorization was cancelled or failed."
         logger.error(f"[LinkedIn OAuth GET Callback] LinkedIn returned error: {error} - {error_description}")
         return RedirectResponse(
-            url=f"http://localhost:5173/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
+            url=f"{frontend_base}/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
             status_code=303
         )
 
@@ -430,7 +582,7 @@ async def linkedin_oauth_get_callback(
         err_detail = "Missing authorization code from LinkedIn."
         logger.error(f"[LinkedIn OAuth GET Callback] {err_detail}")
         return RedirectResponse(
-            url=f"http://localhost:5173/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
+            url=f"{frontend_base}/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
             status_code=303
         )
 
@@ -439,7 +591,7 @@ async def linkedin_oauth_get_callback(
         err_detail = "Invalid or expired OAuth state parameter (CSRF validation failed). Please try connecting again."
         logger.error(f"[LinkedIn OAuth GET Callback] State validation failed for state={state}")
         return RedirectResponse(
-            url=f"http://localhost:5173/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
+            url=f"{frontend_base}/?oauth_status=failed&error={urllib.parse.quote(err_detail)}",
             status_code=303
         )
 
@@ -467,13 +619,13 @@ async def linkedin_oauth_get_callback(
 
         logger.info(f"[LinkedIn OAuth GET Callback] Successfully processed OAuth for {candidate_profile.get('full_name')}. Session: {session_id[:8]}...")
         return RedirectResponse(
-            url=f"http://localhost:5173/?oauth_status=success&session_id={session_id}",
+            url=f"{frontend_base}/?oauth_status=success&session_id={session_id}",
             status_code=303
         )
     except Exception as e:
         logger.error(f"[LinkedIn OAuth GET Callback] Error processing callback: {e}", exc_info=True)
         return RedirectResponse(
-            url=f"http://localhost:5173/?oauth_status=failed&error={urllib.parse.quote(str(e))}",
+            url=f"{frontend_base}/?oauth_status=failed&error={urllib.parse.quote(str(e))}",
             status_code=303
         )
 

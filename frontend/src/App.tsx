@@ -29,6 +29,8 @@ export function AppContent() {
   const [initialLinkedInState, setInitialLinkedInState] = useState<string | null>(null);
   const [initialLinkedInSessionId, setInitialLinkedInSessionId] = useState<string | null>(null);
   const [initialLinkedInError, setInitialLinkedInError] = useState<string | null>(null);
+  const [githubSessionId, setGithubSessionId] = useState<string | null>(null);
+  const [githubOAuthError, setGithubOAuthError] = useState<string | null>(null);
 
   // Detect incoming LinkedIn OAuth callback parameters on mount
   React.useEffect(() => {
@@ -68,6 +70,22 @@ export function AppContent() {
       setInitialLinkedInSessionId(null);
       setInitialLinkedInCode(null);
       setIsLinkedInImportOpen(true);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // GitHub OAuth callback
+    const githubStatus = params.get('github_status');
+    const githubSessionIdParam = params.get('github_session_id');
+    const githubError = params.get('error');
+    if (githubStatus === 'success' && githubSessionIdParam) {
+      setGithubSessionId(githubSessionIdParam);
+      setGithubOAuthError(null);
+      setActiveTab('portfolio');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (githubStatus === 'failed') {
+      setGithubOAuthError(githubError || 'GitHub authorization failed.');
+      setGithubSessionId(null);
+      setActiveTab('portfolio');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -157,6 +175,9 @@ export function AppContent() {
           <PortfolioGeneratorView
             activeResume={activeResume}
             onNavigate={(tab) => setActiveTab(tab as any)}
+            initialGithubSessionId={githubSessionId}
+            initialGithubError={githubOAuthError}
+            onClearGithubSession={() => { setGithubSessionId(null); setGithubOAuthError(null); }}
           />
         )}
       </main>

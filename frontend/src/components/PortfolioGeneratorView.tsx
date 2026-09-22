@@ -28,6 +28,9 @@ import { useAuth } from '../context/AuthContext';
 interface PortfolioGeneratorViewProps {
   activeResume: ResumeProfile;
   onNavigate?: (tab: string) => void;
+  initialGithubSessionId?: string | null;
+  initialGithubError?: string | null;
+  onClearGithubSession?: () => void;
 }
 
 const PORTFOLIO_THEMES = [

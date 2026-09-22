@@ -62,6 +62,7 @@ class DocxResumeGenerator:
         if profile.contact_info.location: contact_parts.append(profile.contact_info.location)
         if profile.contact_info.linkedin: contact_parts.append(profile.contact_info.linkedin)
         if profile.contact_info.github: contact_parts.append(profile.contact_info.github)
+        if profile.contact_info.portfolio: contact_parts.append(profile.contact_info.portfolio)
 
         if contact_parts:
             contact_para = doc.add_paragraph()
@@ -127,6 +128,12 @@ class DocxResumeGenerator:
                     r_tech.font.size = Pt(9.5)
                     r_tech.font.color.rgb = RGBColor(100, 116, 139)
 
+                if proj.link:
+                    r_link = proj_p.add_run(f"  ({proj.link})")
+                    r_link.font.name = font_name
+                    r_link.font.size = Pt(8.5)
+                    r_link.font.color.rgb = accent_color
+
                 if proj.description:
                     dp = doc.add_paragraph()
                     r_desc = dp.add_run(proj.description)
@@ -186,6 +193,13 @@ class DocxResumeGenerator:
                     r_date.font.size = Pt(9)
                     r_date.font.color.rgb = RGBColor(100, 116, 139)
 
+                if edu.highlights:
+                    for eh in edu.highlights:
+                        ep = doc.add_paragraph(style='List Bullet')
+                        r_eh = ep.add_run(eh)
+                        r_eh.font.name = font_name
+                        r_eh.font.size = Pt(9)
+
         # 7. Certifications & Achievements
         if profile.certifications or profile.achievements:
             cls._add_section_heading(doc, "CERTIFICATIONS & AWARDS", font_name, accent_color)
@@ -199,6 +213,23 @@ class DocxResumeGenerator:
                 r_a = ap.add_run(ach)
                 r_a.font.name = font_name
                 r_a.font.size = Pt(9.5)
+
+        # 8. Spoken Languages
+        if getattr(profile, 'languages', None) and len(profile.languages) > 0:
+            cls._add_section_heading(doc, "LANGUAGES", font_name, accent_color)
+            lp = doc.add_paragraph()
+            r_lang = lp.add_run(" • ".join(profile.languages))
+            r_lang.font.name = font_name
+            r_lang.font.size = Pt(9.5)
+
+        # 9. Extracurriculars & Volunteer Work
+        if getattr(profile, 'extracurriculars', None) and len(profile.extracurriculars) > 0:
+            cls._add_section_heading(doc, "LEADERSHIP & ACTIVITIES", font_name, accent_color)
+            for ec in profile.extracurriculars:
+                ecp = doc.add_paragraph(style='List Bullet')
+                r_ec = ecp.add_run(ec)
+                r_ec.font.name = font_name
+                r_ec.font.size = Pt(9.5)
 
         buffer = io.BytesIO()
         doc.save(buffer)

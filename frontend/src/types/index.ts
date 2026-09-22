@@ -400,6 +400,53 @@ export interface PortfolioDeployResponse {
   message: string;
 }
 
+export interface GitHubOAuthUrlResponse {
+  configured: boolean;
+  authorization_url: string;
+  client_id: string;
+  redirect_uri: string;
+  state: string;
+  scopes: string[];
+  message: string;
+}
+
+export interface GitHubSessionResponse {
+  session_id: string;
+  username: string;
+  name: string;
+  avatar_url: string;
+  email: string;
+}
+
+export interface GitHubRepoItem {
+  name: string;
+  full_name: string;
+  private: boolean;
+  html_url: string;
+  description: string;
+  updated_at: string;
+}
+
+export interface GitHubPublishResponse {
+  repo_name: string;
+  repo_full_name: string;
+  html_url: string;
+  pages_url: string;
+  pushed_files: string[];
+  message: string;
+}
+
+export const PORTFOLIO_THEMES = [
+  { id: 'dark_cyber',         name: 'Dark Cyber Neon',      accent: '#3B82F6', desc: 'Electric blue glowing accents on obsidian dark background' },
+  { id: 'emerald_clean',      name: 'Emerald Minimal',       accent: '#10B981', desc: 'Clean modern typography with forest & mint green highlights' },
+  { id: 'obsidian_executive', name: 'Obsidian Executive',    accent: '#D97706', desc: 'Refined warm amber & gold details for senior engineering leads' },
+  { id: 'minimal_luxe',       name: 'Minimal Luxe',          accent: '#E11D48', desc: 'Ultra-sleek crimson rose palette with expansive modern whitespace' },
+  { id: 'light_professional', name: 'Light Professional',    accent: '#2563EB', desc: 'Clean white & blue — classic, recruiter-ready professional look' },
+  { id: 'dev_code',           name: 'Dev Terminal',          accent: '#00FF41', desc: 'Dark GitHub-style with terminal green — built for developers' },
+  { id: 'corporate_navy',     name: 'Corporate Navy',        accent: '#1E3A5F', desc: 'Professional light background with deep navy accents' },
+  { id: 'warm_creative',      name: 'Warm Creative',         accent: '#EA580C', desc: 'Warm cream & orange — ideal for designers and creative professionals' },
+] as const;
+
 
 export interface JobDescriptionData {
   raw_text: string;
