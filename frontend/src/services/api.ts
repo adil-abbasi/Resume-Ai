@@ -616,6 +616,611 @@ export const sampleCreativeProfile: ResumeProfile = {
   career_interests: "Design leadership roles shaping next-generation consumer and creator software tools."
 };
 
+export const sampleHealthcareProfile: ResumeProfile = {
+  id: "sample-healthcare",
+  title: "Dr. Sarah Jenkins, MD - Attending Physician",
+  target_role: "Attending Physician / Clinical Director",
+  contact_info: {
+    full_name: "Dr. Sarah Jenkins, MD",
+    email: "sjenkins.md@hospitalmed.org",
+    phone: "+1 (312) 555-4321",
+    location: "Chicago, IL",
+    linkedin: "linkedin.com/in/sarahjenkins-md",
+    title: "Attending Physician – Internal Medicine"
+  },
+  summary: "Board-Certified Internal Medicine Attending with 7+ years of inpatient care, diagnostic reasoning, and hospital medicine leadership. Supervised 40+ clinical residents and led quality improvement committees reducing 30-day readmissions by 18%.",
+  skills: {
+    technical_skills: ["Inpatient Medicine", "Critical Care Triage", "Diagnostic Reasoning", "Central Venous Catheterization", "Arterial Lines", "Point-of-Care Ultrasound (POCUS)"],
+    frameworks_libraries: ["Epic Hyperspace", "Cerner PowerChart", "UpToDate", "Doximity"],
+    developer_tools: ["EHR Clinical Decision Support", "PACS Imaging Systems"],
+    soft_skills: ["Patient-Centered Care", "Multidisciplinary Rounds", "Clinical Mentorship", "Crisis Communication"],
+    other: ["Infection Prevention Protocols", "Hospital Quality Metrics", "JCAHO Compliance"]
+  },
+  work_experience: [
+    {
+      company: "Northwestern Memorial Hospital",
+      position: "Attending Physician – Department of Medicine",
+      location: "Chicago, IL",
+      start_date: "2021",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Manage high-acuity 28-bed inpatient ward, coordinating care with multidisciplinary ICU and surgical teams.",
+        "Championed antimicrobial stewardship protocol that decreased unnecessary broad-spectrum antibiotic usage by 24%.",
+        "Direct daily clinical teaching rounds for internal medicine residents and 3rd/4th-year medical students."
+      ]
+    },
+    {
+      company: "Rush University Medical Center",
+      position: "Internal Medicine Resident & Chief Resident",
+      location: "Chicago, IL",
+      start_date: "2018",
+      end_date: "2021",
+      current: false,
+      highlights: [
+        "Delivered direct primary and acute care across inpatient wards, medical ICU, and outpatient clinics.",
+        "Elected Chief Resident (2020-2021), overseeing scheduling, curriculum, and clinical welfare of 68 residents.",
+        "Received Excellence in Bedside Teaching Award two consecutive academic years."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "Northwestern University Feinberg School of Medicine",
+      degree: "Doctor of Medicine (M.D.)",
+      field_of_study: "Medicine",
+      start_date: "2014",
+      end_date: "2018",
+      location: "Chicago, IL",
+      highlights: ["Alpha Omega Alpha (AOA) Honor Medical Society", "Gold Humanism Honor Society"]
+    },
+    {
+      institution: "University of Michigan",
+      degree: "B.S. in Cellular & Molecular Biology, Magna Cum Laude",
+      field_of_study: "Biology & Biochemistry",
+      start_date: "2010",
+      end_date: "2014",
+      gpa: "3.92 / 4.0",
+      location: "Ann Arbor, MI",
+      highlights: ["Phi Beta Kappa", "Undergraduate Research Fellowship"]
+    }
+  ],
+  projects: [
+    {
+      title: "Inpatient Readmission Reduction Protocol",
+      description: "Structured post-discharge multidisciplinary follow-up model for heart failure and COPD patients.",
+      technologies: ["Epic EHR", "Biostatistics", "Clinical Pathways"],
+      highlights: [
+        "Reduced 30-day all-cause readmission rates from 21.4% to 17.5% across 800+ admissions.",
+        "Presented outcomes at Society of Hospital Medicine (SHM) Annual Conference."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "American Board of Internal Medicine (ABIM) Board Certified",
+      issuer: "ABIM",
+      issue_date: "2021",
+      expiry_date: "2031"
+    },
+    {
+      name: "Illinois Permanent State Medical License",
+      issuer: "IDFPR",
+      issue_date: "2018"
+    },
+    {
+      name: "Advanced Cardiovascular Life Support (ACLS) & BLS",
+      issuer: "American Heart Association",
+      issue_date: "2024",
+      expiry_date: "2026"
+    }
+  ],
+  achievements: [
+    "Published 5 peer-reviewed clinical articles in Annals of Internal Medicine and Journal of Hospital Medicine",
+    "Hospital Physician of the Year Nominee (2023)"
+  ],
+  extracurriculars: [
+    "Volunteer Physician at Community Free Clinic Chicago",
+    "Member of American College of Physicians (ACP)"
+  ],
+  languages: ["English (Native)", "Spanish (Medical Spanish Certified)"]
+};
+
+export const sampleLawProfile: ResumeProfile = {
+  id: "sample-law",
+  title: "James Thornton, Esq. - Corporate Counsel",
+  target_role: "Senior Corporate Counsel / Partner",
+  contact_info: {
+    full_name: "James Thornton, Esq.",
+    email: "jthornton@thorntonlegal.com",
+    phone: "+1 (202) 555-0199",
+    location: "Washington, DC",
+    linkedin: "linkedin.com/in/jamesthorntonesq",
+    title: "Corporate Counsel & M&A Specialist"
+  },
+  summary: "Corporate attorney with 8+ years advising Fortune 500 corporations and private equity funds on cross-border M&A ($3B+ aggregate value), commercial debt financings, and antitrust regulatory filings. Admitted to the District of Columbia and New York State Bars.",
+  skills: {
+    technical_skills: ["Mergers & Acquisitions", "Commercial Contracts", "Securities Law", "Antitrust Due Diligence", "Corporate Governance", "Shareholder Agreements"],
+    frameworks_libraries: ["LexisNexis", "Westlaw Precision", "Relativity", "Bloomberg Law", "Practical Law"],
+    developer_tools: ["Contract Automation", "SEC EDGAR Filing"],
+    soft_skills: ["High-Stakes Negotiation", "Executive Advising", "Board Presentation", "Regulatory Defense"],
+    other: ["HSR Antitrust Filings", "Cross-Border Tax Treaties", "Joint Venture Structuring"]
+  },
+  work_experience: [
+    {
+      company: "Sterling, Hayes & Vance LLP",
+      position: "Senior Corporate Associate",
+      location: "Washington, DC",
+      start_date: "2020",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Lead transaction counsel on 22 domestic and international acquisition deals valued from $50M to $1.2B.",
+        "Draft and negotiate stock purchase agreements, disclosure schedules, credit facilities, and transition services covenants.",
+        "Managed antitrust Hart-Scott-Rodino (HSR) filings before the FTC and Department of Justice Antitrust Division."
+      ]
+    },
+    {
+      company: "Covington & Associates LLP",
+      position: "Corporate Associate",
+      location: "New York, NY",
+      start_date: "2017",
+      end_date: "2020",
+      current: false,
+      highlights: [
+        "Structured seed and growth-equity investment rounds for venture capital firms and emerging tech companies.",
+        "Conducted exhaustive legal due diligence and drafted commercial master service agreements (MSAs) and vendor contracts."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "Georgetown University Law Center",
+      degree: "Juris Doctor (J.D.), Magna Cum Laude",
+      field_of_study: "Corporate & Securities Law",
+      start_date: "2014",
+      end_date: "2017",
+      location: "Washington, DC",
+      highlights: ["Executive Articles Editor, The Georgetown Law Journal", "Order of the Coif"]
+    },
+    {
+      institution: "University of Virginia",
+      degree: "B.A. in Political Science & Economics",
+      field_of_study: "Economics",
+      start_date: "2010",
+      end_date: "2014",
+      gpa: "3.89 / 4.0",
+      location: "Charlottesville, VA",
+      highlights: ["Echols Scholar", "Dean's List (8 Semesters)"]
+    }
+  ],
+  projects: [
+    {
+      title: "Cross-Border Aerospace Consolidation ($850M)",
+      description: "Represented acquiring multinational in multi-jurisdiction defense asset merger through CFIUS review.",
+      technologies: ["CFIUS", "Antitrust Clearance", "SPA Drafts"],
+      highlights: [
+        "Secured unconditional regulatory approvals across FTC, DOJ, and European Commission within 9 months."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "District of Columbia Bar (Bar No. 1048291)",
+      issuer: "D.C. Court of Appeals",
+      issue_date: "2018"
+    },
+    {
+      name: "New York State Bar (Registration No. 551920)",
+      issuer: "NYS Appellate Division",
+      issue_date: "2017"
+    }
+  ],
+  achievements: [
+    "Recognized in Super Lawyers 'Rising Stars' – Corporate & Securities (2022, 2023, 2024)",
+    "Published author of 'Antitrust Review in Cross-Border Platform Mergers' in Columbia Business Law Review"
+  ],
+  extracurriculars: [
+    "Pro Bono Legal Clinic Volunteer – D.C. Small Business Assistance Program",
+    "Member of American Bar Association Business Law Section"
+  ],
+  languages: ["English (Native)", "French (Working Proficiency)"]
+};
+
+export const sampleEngineeringProfile: ResumeProfile = {
+  id: "sample-engineering",
+  title: "Michael Sterling, PE - Senior Civil & Structural Engineer",
+  target_role: "Lead Structural Engineer / Project Director",
+  contact_info: {
+    full_name: "Michael Sterling, PE",
+    email: "msterling.pe@infrastructure-eng.com",
+    phone: "+1 (206) 555-8712",
+    location: "Seattle, WA",
+    linkedin: "linkedin.com/in/michaelsterling-pe",
+    title: "Senior Civil & Structural Engineer, PE"
+  },
+  summary: "Licensed Professional Engineer (PE) with 9+ years managing highway bridge design, deep foundation analysis, and seismic retrofits for municipal and federal DOT infrastructure programs ($200M+ portfolio).",
+  skills: {
+    technical_skills: ["Structural Steel Design", "Post-Tensioned Concrete", "Seismic Retrofit Analysis", "Finite Element Modeling", "Geotechnical Foundations", "BIM 360 Coordination"],
+    frameworks_libraries: ["AutoCAD Civil 3D", "Revit Structure", "SAP2000", "ETABS", "STAAD.Pro", "Bluebeam Revu"],
+    developer_tools: ["MathCAD", "ArcGIS", "Civil 3D"],
+    soft_skills: ["Client & DOT Stakeholder Liaison", "Field Inspection Leadership", "Project Cost Estimating", "Constructability Reviews"],
+    other: ["AASHTO LRFD Specifications", "IBC & ASCE 7 Standards", "ACI 318 Concrete Codes"]
+  },
+  work_experience: [
+    {
+      company: "WSP Global Engineering",
+      position: "Senior Structural Project Engineer",
+      location: "Seattle, WA",
+      start_date: "2020",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Lead structural design of 3-span steel composite girder bridge replacing aging county crossing ($42M budget).",
+        "Perform non-linear dynamic seismic evaluations using SAP2000, ensuring seismic resilience for Essential Bridge Category.",
+        "Direct team of 6 engineers and technicians, ensuring complete compliance with WSDOT and AASHTO LRFD standards."
+      ]
+    },
+    {
+      company: "HDR Engineering Inc.",
+      position: "Structural Engineer (PE)",
+      location: "Portland, OR",
+      start_date: "2016",
+      end_date: "2020",
+      current: false,
+      highlights: [
+        "Engineered retaining walls, deep drilled shafts, and stormwater culvert crossings for state transit corridor.",
+        "Conducted bi-annual National Bridge Inspection Standards (NBIS) fracture-critical bridge safety inspections."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "University of Washington",
+      degree: "M.S. in Civil & Structural Engineering",
+      field_of_study: "Structural Dynamics & Earthquakes",
+      start_date: "2014",
+      end_date: "2016",
+      gpa: "3.90 / 4.0",
+      location: "Seattle, WA"
+    },
+    {
+      institution: "Oregon State University",
+      degree: "B.S. in Civil Engineering, Summa Cum Laude",
+      field_of_study: "Civil Engineering",
+      start_date: "2010",
+      end_date: "2014",
+      gpa: "3.94 / 4.0",
+      location: "Corvallis, OR",
+      highlights: ["Chi Epsilon Civil Engineering Honor Society", "ASCE Steel Bridge Team Captain"]
+    }
+  ],
+  projects: [
+    {
+      title: "Interstate Transit Viaduct Seismic Hardening",
+      description: "Non-linear pushover analysis and carbon-fiber column jacket retrofit design for 14 viaduct piers.",
+      technologies: ["ETABS", "FRP Jackets", "Non-linear Pushover"],
+      highlights: [
+        "Extended structural operating lifespan by 35 years while saving county $18M compared to complete replacement."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "Licensed Professional Engineer (PE) – Washington & Oregon",
+      issuer: "WA State Board of Registration",
+      issue_date: "2018"
+    },
+    {
+      name: "FHWA-NHI Bridge Inspector Certification (NBIS)",
+      issuer: "National Highway Institute",
+      issue_date: "2017"
+    }
+  ],
+  achievements: [
+    "ASCE Structural Project of the Year Award (Pacific Northwest Chapter, 2023)",
+    "Published research on precast prestressed girder shear strength in PCI Journal"
+  ],
+  extracurriculars: [
+    "ASCE Seattle Chapter Board Member",
+    "Engineers Without Borders Volunteer"
+  ],
+  languages: ["English (Native)"]
+};
+
+export const sampleBusinessProfile: ResumeProfile = {
+  id: "sample-business",
+  title: "Amanda Brooks - Director of People Operations & HR",
+  target_role: "VP of People Operations / Chief Human Resources Officer",
+  contact_info: {
+    full_name: "Amanda Brooks, SHRM-SCP",
+    email: "amanda.brooks@peoplelead.com",
+    phone: "+1 (415) 555-6789",
+    location: "San Francisco, CA",
+    linkedin: "linkedin.com/in/amandabrooks-hr",
+    title: "Director of People Operations & HR"
+  },
+  summary: "Strategic HR leader with 10+ years scaling venture-backed and global organizations from 150 to 1,200+ employees. Expert in employee engagement, global talent acquisition, executive compensation, and compliance.",
+  skills: {
+    technical_skills: ["People Operations", "Talent Acquisition", "Compensation & Equity", "Performance Management", "Employee Relations", "DEI Strategy"],
+    frameworks_libraries: ["Workday HCM", "Greenhouse", "Lattice", "Culture Amp", "Gusto", "Rippling"],
+    developer_tools: ["HR Analytics (Visier)", "Tableau HR Dashboards"],
+    soft_skills: ["Executive Coaching", "Organizational Design", "Conflict Mediation", "Change Management"],
+    other: ["FLSA & EEOC Compliance", "Global Relocation", "Merger & Acquisition Integration"]
+  },
+  work_experience: [
+    {
+      company: "Luminary Technologies",
+      position: "Director of People Operations",
+      location: "San Francisco, CA",
+      start_date: "2021",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Scaled global headcount from 220 to 650 employees across US, EMEA, and APAC while reducing employee turnover by 32%.",
+        "Restructured total rewards framework, implementing transparent career leveling matrix and competitive benchmarked salary bands.",
+        "Maintained 88% overall engagement score on annual Culture Amp survey through transparent leadership all-hands."
+      ]
+    },
+    {
+      company: "NextGen Software Corp",
+      position: "Senior HR Business Partner (HRBP)",
+      location: "San Francisco, CA",
+      start_date: "2017",
+      end_date: "2021",
+      current: false,
+      highlights: [
+        "Partnered with VP of Sales and VP of Product to lead headcount planning, performance calibrations, and retention programs.",
+        "Designed comprehensive 90-day onboarding journey improving new hire ramp-to-productivity time by 28%."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "Cornell University",
+      degree: "B.S. in Industrial & Labor Relations (ILR)",
+      field_of_study: "Human Resource Management",
+      start_date: "2011",
+      end_date: "2015",
+      gpa: "3.84 / 4.0",
+      location: "Ithaca, NY"
+    }
+  ],
+  projects: [
+    {
+      title: "Global Hybrid Workplace Transformation",
+      description: "Designed multi-state and multi-national remote work policies, compliance guidelines, and workspace stipends.",
+      technologies: ["Workday", "Lattice", "Compliance Auditing"],
+      highlights: [
+        "Saved $2.4M annually in real-estate overhead while boosting hiring candidate pool reach by 400%."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "SHRM Senior Certified Professional (SHRM-SCP)",
+      issuer: "Society for Human Resource Management",
+      issue_date: "2019",
+      expiry_date: "2025"
+    },
+    {
+      name: "Senior Professional in Human Resources (SPHR)",
+      issuer: "HRCI",
+      issue_date: "2018"
+    }
+  ],
+  achievements: [
+    "Named Top 40 Under 40 HR Leaders by Human Resource Executive Magazine",
+    "Speaker on 'Building Culture in Distributed Scaleups' at SHRM Annual Conference"
+  ],
+  extracurriculars: [
+    "Mentor at Women in HR Technology",
+    "Advisory Board Member – Bay Area People Leaders"
+  ],
+  languages: ["English (Native)"]
+};
+
+export const sampleFinanceProfile: ResumeProfile = {
+  id: "sample-finance",
+  title: "Claire Dupont, CPA - Senior Financial Controller",
+  target_role: "Vice President of Finance / Corporate Controller",
+  contact_info: {
+    full_name: "Claire Dupont, CPA",
+    email: "cdupont.cpa@financeexec.com",
+    phone: "+1 (212) 555-9012",
+    location: "New York, NY",
+    linkedin: "linkedin.com/in/clairedupont-cpa",
+    title: "Senior Financial Controller, CPA"
+  },
+  summary: "Certified Public Accountant (CPA) with 10+ years directing accounting operations, SEC financial reporting (10-K, 10-Q), SOX 404 internal controls, and corporate cash treasury ($500M+ revenue). Big 4 alumni.",
+  skills: {
+    technical_skills: ["GAAP / IFRS Accounting", "SEC Financial Reporting", "SOX 404 Compliance", "Treasury & Cash Management", "Audit Defense", "Revenue Recognition (ASC 606)"],
+    frameworks_libraries: ["NetSuite OneWorld", "SAP S/4HANA", "Workiva", "Hyperion Financial Management", "Excel Advanced VBA"],
+    developer_tools: ["Alteryx Financial Automation", "PowerBI"],
+    soft_skills: ["Board Financial Reporting", "Audit Committee Presentations", "Cross-Functional Budgeting"],
+    other: ["M&A Purchase Accounting (ASC 805)", "Transfer Pricing", "Tax Provision (ASC 740)"]
+  },
+  work_experience: [
+    {
+      company: "Beacon Global Media Corp",
+      position: "Corporate Controller",
+      location: "New York, NY",
+      start_date: "2020",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Manage 18-person corporate accounting team covering general ledger, financial reporting, accounts payable, and tax.",
+        "Accelerated monthly close cycle from 12 business days to 4 business days via automated reconciliation workflows.",
+        "Served as primary liaison with external auditors (PwC), resulting in clean unqualified audit opinions for 4 consecutive years."
+      ]
+    },
+    {
+      company: "PricewaterhouseCoopers (PwC)",
+      position: "Audit Manager – Assurance Practice",
+      location: "New York, NY",
+      start_date: "2015",
+      end_date: "2020",
+      current: false,
+      highlights: [
+        "Supervised integrated financial statement audits and SOX 404 assessments for public technology and media clients.",
+        "Specialized in complex revenue recognition contracts (ASC 606) and capitalized software evaluations (ASC 350-40)."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "New York University (NYU) Stern School of Business",
+      degree: "B.S. in Accounting & Finance, Magna Cum Laude",
+      field_of_study: "Accounting",
+      start_date: "2011",
+      end_date: "2015",
+      gpa: "3.91 / 4.0",
+      location: "New York, NY",
+      highlights: ["Beta Alpha Psi Financial Honor Society"]
+    }
+  ],
+  projects: [
+    {
+      title: "ERP System Migration & Reconciliation (NetSuite)",
+      description: "Led company-wide enterprise migration from legacy QuickBooks to NetSuite OneWorld across 8 subsidiaries.",
+      technologies: ["NetSuite", "Alteryx", "SQL"],
+      highlights: [
+        "Completed migration on budget and 2 weeks ahead of schedule with zero ledger discrepancies."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "Certified Public Accountant (CPA) – State of New York",
+      issuer: "New York State Board of Accountancy",
+      issue_date: "2016"
+    }
+  ],
+  achievements: [
+    "CPA Exam High Score Honor Recipient (Elijah Watt Sells Award Eligible)",
+    "Treasurer & Board Member for New York Arts Non-Profit"
+  ],
+  extracurriculars: [
+    "Member of American Institute of CPAs (AICPA)",
+    "Volunteer Tax Preparer (VITA Program)"
+  ],
+  languages: ["English (Native)", "French (Bilingual)"]
+};
+
+export const sampleEducationProfile: ResumeProfile = {
+  id: "sample-education",
+  title: "David Miller, M.Ed - High School Science Department Chair",
+  target_role: "High School Principal / Academic Director",
+  contact_info: {
+    full_name: "David Miller, M.Ed",
+    email: "dmiller.edu@publicschools.org",
+    phone: "+1 (617) 555-7812",
+    location: "Boston, MA",
+    linkedin: "linkedin.com/in/davidmiller-educator",
+    title: "High School Science Department Chair & Licensed Educator"
+  },
+  summary: "Dedicated secondary educator and department chair with 11+ years of instructional leadership, AP Biology teaching, curriculum development, and STEM equity initiatives. Increased state exam proficiency scores by 26%.",
+  skills: {
+    technical_skills: ["Curriculum & Syllabus Design", "Inquiry-Based Learning", "Differentiated Instruction", "IEP & 504 Accommodations", "Formative Assessment", "Laboratory Safety"],
+    frameworks_libraries: ["Google Classroom", "Canvas LMS", "PowerSchool SIS", "Vernier LabQuest", "Nearpod"],
+    developer_tools: ["Classroom Tech Tools"],
+    soft_skills: ["Classroom Management", "Parent-Teacher Partnership", "Instructional Coaching", "Community Engagement"],
+    other: ["Next Generation Science Standards (NGSS)", "AP Biology College Board Certified", "Title I School Engagement"]
+  },
+  work_experience: [
+    {
+      company: "Boston Public High School",
+      position: "Science Department Chair & AP Biology Teacher",
+      location: "Boston, MA",
+      start_date: "2018",
+      end_date: "Present",
+      current: true,
+      highlights: [
+        "Lead 14-faculty science department, facilitating monthly professional development and curriculum alignment with NGSS standards.",
+        "Taught AP Biology achieving an 88% pass rate (score 3+) over 6 years compared to 64% national average.",
+        "Secured $85K in STEM lab grants to equip modern biotechnology and spectrophotometry student workstations."
+      ]
+    },
+    {
+      company: "Cambridge Community School",
+      position: "High School Biology & Chemistry Teacher",
+      location: "Cambridge, MA",
+      start_date: "2013",
+      end_date: "2018",
+      current: false,
+      highlights: [
+        "Designed hands-on investigative science units incorporating environmental water testing of the Charles River.",
+        "Mentored student science fair participants, coaching 4 regional and state ISEF finalists."
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "Harvard Graduate School of Education",
+      degree: "Master of Education (M.Ed.) in Curriculum & Teaching",
+      field_of_study: "Secondary Science Education",
+      start_date: "2012",
+      end_date: "2013",
+      location: "Cambridge, MA"
+    },
+    {
+      institution: "Boston College",
+      degree: "B.S. in Biology & Secondary Education, Magna Cum Laude",
+      field_of_study: "Biology",
+      start_date: "2008",
+      end_date: "2012",
+      gpa: "3.87 / 4.0",
+      location: "Chestnut Hill, MA",
+      highlights: ["Dean's List", "Presidential Scholar"]
+    }
+  ],
+  projects: [
+    {
+      title: "Biotechnology High School Outreach Initiative",
+      description: "Partnered with local biotech institutes to provide weekend lab mentorships for underrepresented high school students.",
+      technologies: ["Lab Instruments", "Community Partnerships"],
+      highlights: [
+        "Participated by 180+ students over 4 years; 72% continued into university STEM majors."
+      ]
+    }
+  ],
+  certifications: [
+    {
+      name: "Massachusetts Professional Educator License – Biology (8-12)",
+      issuer: "MA DESE",
+      issue_date: "2013",
+      expiry_date: "2028"
+    },
+    {
+      name: "College Board AP Biology Certified Instructor",
+      issuer: "The College Board",
+      issue_date: "2015"
+    }
+  ],
+  achievements: [
+    "Massachusetts Teacher of the Year Finalist (2022)",
+    "National Science Teaching Association (NSTA) Excellence in Science Teaching Award"
+  ],
+  extracurriculars: [
+    "Advisor, Science Olympiad & Environmental Club",
+    "Member of National Science Teaching Association"
+  ],
+  languages: ["English (Native)"]
+};
+
+export function getSampleProfileForIndustry(industry?: string, category?: string): ResumeProfile {
+  const ind = (industry || category || '').toLowerCase();
+  if (ind.includes('health') || ind.includes('medic') || ind.includes('nurs') || ind.includes('pharma') || ind.includes('doctor')) return sampleHealthcareProfile;
+  if (ind.includes('law') || ind.includes('legal') || ind.includes('counsel') || ind.includes('attorney')) return sampleLawProfile;
+  if (ind.includes('engine') || ind.includes('civil') || ind.includes('mech') || ind.includes('electr')) return sampleEngineeringProfile;
+  if (ind.includes('edu') || ind.includes('teach') || ind.includes('prof') || ind.includes('academ')) return sampleEducationProfile;
+  if (ind.includes('finan') || ind.includes('account') || ind.includes('cpa') || ind.includes('audit')) return sampleFinanceProfile;
+  if (ind.includes('biz') || ind.includes('business') || ind.includes('manage') || ind.includes('hr') || ind.includes('sales')) return sampleBusinessProfile;
+  if (ind.includes('creat') || ind.includes('design') || ind.includes('art') || ind.includes('media')) return sampleCreativeProfile;
+  if (ind.includes('grad') || ind.includes('intern') || ind.includes('entry') || ind.includes('starter')) return sampleGradProfile;
+  return sampleSWEProfile;
+}
+
 /**
  * High-fidelity multi-page PDF exporter
  * Captures each A4 page container directly at retina 2x resolution and embeds into an A4 PDF
@@ -936,11 +1541,13 @@ export const apiService = {
 
   // ---------------- 100+ RESUME TEMPLATES ---------------- //
 
-  async getTemplates(category?: string, search?: string, onlyPro?: boolean): Promise<{ total: number; categories: string[]; templates: ResumeTemplate[] }> {
+  async getTemplates(category?: string, search?: string, onlyPro?: boolean, industry?: string, atsOnly?: boolean): Promise<{ total: number; categories: string[]; templates: ResumeTemplate[] }> {
     const params = new URLSearchParams();
     if (category && category !== 'All') params.append('category', category);
     if (search) params.append('search', search);
     if (onlyPro !== undefined) params.append('only_pro', String(onlyPro));
+    if (industry && industry !== 'All') params.append('industry', industry);
+    if (atsOnly !== undefined) params.append('ats_only', String(atsOnly));
 
     const res = await fetch(`${API_BASE_URL}/templates?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch templates');
@@ -950,6 +1557,67 @@ export const apiService = {
   async getTemplateDetail(templateId: string): Promise<ResumeTemplate> {
     const res = await fetch(`${API_BASE_URL}/templates/${templateId}`);
     if (!res.ok) throw new Error('Failed to fetch template detail');
+    return await res.json();
+  },
+
+  async getCustomTemplates(token?: string): Promise<{ total: number; templates: ResumeTemplate[] }> {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const res = await fetch(`${API_BASE_URL}/templates/custom`, { headers });
+      if (!res.ok) throw new Error('Failed to fetch custom templates');
+      return await res.json();
+    } catch {
+      return { total: 0, templates: [] };
+    }
+  },
+
+  async saveCustomTemplate(templateData: any, token?: string): Promise<ResumeTemplate> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE_URL}/templates/custom`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(templateData)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to save custom template' }));
+      throw new Error(err.detail || 'Failed to save custom template');
+    }
+    return await res.json();
+  },
+
+  async updateCustomTemplate(templateId: string, templateData: any, token?: string): Promise<ResumeTemplate> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE_URL}/templates/custom/${templateId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(templateData)
+    });
+    if (!res.ok) throw new Error('Failed to update custom template');
+    return await res.json();
+  },
+
+  async duplicateTemplate(templateId: string, token?: string): Promise<ResumeTemplate> {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE_URL}/templates/custom/${templateId}/duplicate`, {
+      method: 'POST',
+      headers
+    });
+    if (!res.ok) throw new Error('Failed to duplicate template');
+    return await res.json();
+  },
+
+  async deleteCustomTemplate(templateId: string, token?: string): Promise<{ success: boolean; message: string }> {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE_URL}/templates/custom/${templateId}`, {
+      method: 'DELETE',
+      headers
+    });
+    if (!res.ok) throw new Error('Failed to delete custom template');
     return await res.json();
   },
 

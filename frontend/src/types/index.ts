@@ -48,6 +48,15 @@ export interface ResumeTemplate {
   rating: number;
   downloads_count: number;
   recommended_for?: string[];
+  industry?: string;
+  career_level?: string;
+  columns?: number;
+  header_style?: string;
+  sidebar_position?: string;
+  ats_compatibility?: string;
+  default_section_titles?: Record<string, string>;
+  is_custom?: boolean;
+  created_by?: string;
 }
 
 export interface JobItem {
@@ -175,8 +184,8 @@ export interface ContactInfo {
   phone: string;
   location: string;
   linkedin: string;
-  github: string;
-  portfolio: string;
+  github?: string;
+  portfolio?: string;
   title: string;
 }
 
@@ -186,9 +195,9 @@ export interface EducationItem {
   field_of_study: string;
   start_date: string;
   end_date: string;
-  gpa: string;
+  gpa?: string;
   location?: string;
-  highlights: string[];
+  highlights?: string[];
 }
 
 export interface ExperienceItem {
@@ -240,6 +249,7 @@ export interface ResumeProfile {
   certifications: CertificationItem[];
   achievements: string[];
   extracurriculars: string[];
+  publications?: string[];       // research papers, articles, books, patents
   languages?: string[];          // spoken languages e.g. ["English (Fluent)", "Urdu (Native)"]
   career_interests?: string;     // career goals / areas of interest
   raw_resume_text?: string;      // complete raw source of truth
@@ -264,8 +274,12 @@ export interface TemplateCustomization {
   spacing: 'compact' | 'normal' | 'spacious';
   margins: 'compact' | 'normal' | 'spacious';
   column_layout: 'single_column' | 'two_column';
+  header_style?: 'standard' | 'banner' | 'centered' | 'minimal_line' | 'left_accent';
+  sidebar_position?: 'none' | 'left' | 'right';
   section_order: string[];
   section_visibility: Record<string, boolean>;
+  section_titles?: Record<string, string>;
+  custom_sections?: { id: string; title: string; content: string }[];
 }
 
 export interface LLMStatus {

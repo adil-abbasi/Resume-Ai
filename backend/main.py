@@ -20,6 +20,7 @@ from models.auth_schemas import (
     ForgotPasswordRequest, ResetPasswordRequest, TokenResponse,
     UserResponse, PlanFeatures, SubscriptionInfo, UpgradeSubscriptionRequest,
     CheckoutSessionResponse, TemplateItem, TemplateListResponse,
+    CustomTemplateCreate, CustomTemplateUpdate,
     JobItem, JobSearchQuery, JobFitAnalysis,
     JobApplicationRecord, ProfileVerificationResult,
     LinkedInImportRequest, LinkedInImportResponse, LinkedInResumeGenerateRequest,
@@ -45,6 +46,7 @@ from ai.llm_provider import provider as get_llm_provider
 from export.docx_generator import DocxResumeGenerator
 from data.sample_data import SAMPLE_RESUMES, SAMPLE_JOB_DESCRIPTIONS
 from data.templates_db import ALL_TEMPLATES, TEMPLATES_BY_ID, get_templates, CATEGORIES
+from services.custom_templates_manager import custom_template_manager
 from data.jobs_db import SAMPLE_JOBS_CATALOG, search_jobs, calculate_candidate_job_fit
 from services.job_search_service import job_search_service, get_job_search_provider
 from services.linkedin_extractor_service import get_linkedin_extractor
@@ -432,25 +434,135 @@ async def publish_portfolio_to_github(req: GitHubPublishRequest, authorization: 
 @app.get("/api/templates", response_model=TemplateListResponse)
 async def list_templates(
     category: Optional[str] = Query(None),
+    industry: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
-    only_pro: Optional[bool] = Query(None)
+    only_pro: Optional[bool] = Query(None),
+    ats_only: Optional[bool] = Query(None),
+    authorization: Optional[str] = Header(None)
 ):
-    """Returns searchable, categorized catalog of 100+ resume templates."""
-    filtered = get_templates(category=category, search=search, only_pro=only_pro)
-    return TemplateListResponse(
-        total=len(filtered),
-        categories=["All"] + CATEGORIES,
-        templates=filtered
+    """Returns searchable, categorized catalog of 120+ resume templates plus user custom templates."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else None
+
+    # Base templates
+    catalog_templates = get_templates(
+        category=category,
+        search=search,
+        only_pro=only_pro,
+        industry=industry,
+        ats_only=ats_only
     )
+
+    # Custom templates
+    custom_templates = custom_template_manager.get_user_templates(user_email=user_email)
+    if category and category.lower() == "custom":
+        all_matched = custom_templates
+    elif category and category.lower() != "all":
+        all_matched = catalog_templates
+    else:
+        all_matched = custom_templates + catalog_templates
+
+    if search:
+        q = search.lower().strip()
+        all_matched = [
+            t for t in all_matched
+            if q in t.name.lower() or q in t.description.lower() or any(q in tag for tag in t.tags)
+        ]
+
+    return TemplateListResponse(
+        total=len(all_matched),
+        categories=["All"] + CATEGORIES,
+        templates=all_matched
+    )
+
+
+@app.get("/api/templates/custom", response_model=List[TemplateItem])
+async def list_custom_templates(authorization: Optional[str] = Header(None)):
+    """Retrieves custom templates created by the active user."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else None
+    return custom_template_manager.get_user_templates(user_email=user_email)
+
+
+@app.post("/api/templates/custom", response_model=TemplateItem)
+async def create_custom_template_endpoint(
+    payload: CustomTemplateCreate,
+    authorization: Optional[str] = Header(None)
+):
+    """Creates a new custom template from blank or an existing template."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else "guest"
+    return custom_template_manager.create_custom_template(payload, user_email=user_email)
+
+
+@app.get("/api/templates/custom/{template_id}", response_model=TemplateItem)
+async def get_custom_template_detail(template_id: str):
+    """Retrieves specific custom template."""
+    item = custom_template_manager.get_custom_template(template_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Custom template not found")
+    return item
+
+
+@app.put("/api/templates/custom/{template_id}", response_model=TemplateItem)
+async def update_custom_template_endpoint(
+    template_id: str,
+    payload: CustomTemplateUpdate,
+    authorization: Optional[str] = Header(None)
+):
+    """Updates custom template typography, layout, or section titles."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else None
+    updated = custom_template_manager.update_custom_template(template_id, payload, user_email=user_email)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Custom template not found")
+    return updated
+
+
+@app.post("/api/templates/custom/{template_id}/duplicate", response_model=TemplateItem)
+async def duplicate_template_endpoint(
+    template_id: str,
+    new_name: Optional[str] = Query(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Duplicates any template into a user custom template."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else "guest"
+    duplicated = custom_template_manager.duplicate_custom_template(
+        template_id=template_id,
+        new_name=new_name,
+        user_email=user_email
+    )
+    if not duplicated:
+        raise HTTPException(status_code=404, detail="Template to duplicate not found")
+    return duplicated
+
+
+@app.delete("/api/templates/custom/{template_id}")
+async def delete_custom_template_endpoint(
+    template_id: str,
+    authorization: Optional[str] = Header(None)
+):
+    """Deletes custom template."""
+    user = get_current_user_optional(authorization)
+    user_email = user.email if user else None
+    deleted = custom_template_manager.delete_custom_template(template_id, user_email=user_email)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Custom template not found")
+    return {"status": "success", "message": "Custom template deleted"}
 
 
 @app.get("/api/templates/{template_id}", response_model=TemplateItem)
 async def get_template_detail(template_id: str):
-    """Retrieves specific template metadata and configuration."""
+    """Retrieves specific template metadata and configuration from custom or catalog."""
+    custom = custom_template_manager.get_custom_template(template_id)
+    if custom:
+        return custom
     if template_id in TEMPLATES_BY_ID:
         return TEMPLATES_BY_ID[template_id]
     # Fallback to first
     return ALL_TEMPLATES[0]
+
 
 
 # ---------------- JOB SEARCH & RESUME FIT ---------------- #

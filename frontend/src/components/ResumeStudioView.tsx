@@ -35,7 +35,10 @@ import {
   Code2,
   Award,
   Languages,
-  Users
+  Users,
+  Bookmark,
+  Columns,
+  X
 } from 'lucide-react';
 import { ResumeProfile, TemplateCustomization } from '../types';
 import { 
@@ -59,11 +62,13 @@ interface ResumeStudioViewProps {
 }
 
 const TEMPLATE_PRESETS = [
-  { id: 'modern', name: 'Modern Tech', desc: 'Clean header bar & contemporary tech layout' },
+  { id: 'modern', name: 'Modern Universal', desc: 'Clean header bar & contemporary layout' },
   { id: 'minimal', name: 'Minimal Pure', desc: 'Airy typography & high whitespace' },
   { id: 'classic', name: 'Classic Serif', desc: 'Formal academic standard with serif fonts' },
   { id: 'professional', name: 'Corporate Standard', desc: 'Enterprise layout with left accent dividers' },
   { id: 'executive', name: 'Executive Suite', desc: 'Bold banner header & leadership focus' },
+  { id: 'creative', name: 'Creative Portfolio', desc: 'Artistic typography & expressive layout' },
+  { id: 'academic', name: 'Academic CV', desc: 'Formal research-oriented layout' },
 ] as const;
 
 const ACCENT_COLORS = [
@@ -123,6 +128,44 @@ export const ResumeStudioView: React.FC<ResumeStudioViewProps> = ({
   const [activePage, setActivePage] = useState<number>(1);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
+
+  // Custom template saving state
+  const [isSaveCustomModalOpen, setIsSaveCustomModalOpen] = useState(false);
+  const [customTemplateSaveName, setCustomTemplateSaveName] = useState('');
+  const [customTemplateSaveSuccess, setCustomTemplateSaveSuccess] = useState(false);
+  const [isSavingCustomTemplate, setIsSavingCustomTemplate] = useState(false);
+
+  const handleSaveAsCustomTemplate = async () => {
+    if (!customTemplateSaveName.trim()) return;
+    setIsSavingCustomTemplate(true);
+    try {
+      await apiService.saveCustomTemplate({
+        name: customTemplateSaveName.trim(),
+        description: `Customized based on ${customization.template_id}`,
+        base_template_id: customization.template_id,
+        category: 'Custom',
+        font_family: customization.font_family,
+        font_size: customization.font_size,
+        accent_color: customization.accent_color,
+        secondary_color: customization.secondary_color,
+        spacing: customization.spacing,
+        margins: customization.margins,
+        column_layout: customization.column_layout,
+        header_style: customization.header_style || 'standard',
+        sidebar_position: customization.sidebar_position || 'none',
+        section_titles: customization.section_titles || {}
+      });
+      setCustomTemplateSaveSuccess(true);
+      setTimeout(() => {
+        setCustomTemplateSaveSuccess(false);
+        setIsSaveCustomModalOpen(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to save custom template:', err);
+    } finally {
+      setIsSavingCustomTemplate(false);
+    }
+  };
 
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const centerCanvasContainerRef = useRef<HTMLDivElement>(null);
@@ -1576,6 +1619,125 @@ export const ResumeStudioView: React.FC<ResumeStudioViewProps> = ({
                   </div>
                 </div>
 
+                {/* Column Layout & Structure */}
+                <div className="space-y-1.5 pt-2 border-t border-gray-800">
+                  <label className="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                    <Columns className="w-3.5 h-3.5 text-brand-400" />
+                    <span>Layout & Columns</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <button
+                      onClick={() => setCustomization(prev => ({ ...prev, column_layout: 'single_column' }))}
+                      className={`py-2 px-2.5 rounded-lg border text-center transition-all ${
+                        customization.column_layout === 'single_column'
+                          ? 'bg-brand-600 text-white border-brand-500 font-semibold'
+                          : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Single Column (ATS)
+                    </button>
+                    <button
+                      onClick={() => setCustomization(prev => ({ ...prev, column_layout: 'two_column' }))}
+                      className={`py-2 px-2.5 rounded-lg border text-center transition-all ${
+                        customization.column_layout === 'two_column'
+                          ? 'bg-brand-600 text-white border-brand-500 font-semibold'
+                          : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Two-Column Grid
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sidebar Position */}
+                {customization.column_layout === 'two_column' && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-300">Sidebar Position</label>
+                    <div className="grid grid-cols-3 gap-1.5 text-xs">
+                      {(['none', 'left', 'right'] as const).map(pos => (
+                        <button
+                          key={pos}
+                          onClick={() => setCustomization(prev => ({ ...prev, sidebar_position: pos }))}
+                          className={`py-1.5 rounded-lg border capitalize font-medium transition-all ${
+                            (customization.sidebar_position || 'none') === pos
+                              ? 'bg-brand-600 text-white border-brand-500'
+                              : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          {pos === 'none' ? 'None (50/50)' : `${pos} (30/70)`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Header Style */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-300">Header Presentation</label>
+                  <select
+                    value={customization.header_style || 'standard'}
+                    onChange={(e) => setCustomization(prev => ({ ...prev, header_style: e.target.value as any }))}
+                    className="w-full bg-gray-900 border border-gray-800 rounded-xl px-2.5 py-2 text-xs text-gray-200"
+                  >
+                    <option value="standard">Standard Left Header</option>
+                    <option value="centered">Centered Formal Header</option>
+                    <option value="banner">Color Fill Banner Header</option>
+                    <option value="minimal_line">Minimal Underline Header</option>
+                    <option value="left_accent">Left Thick Accent Stripe</option>
+                  </select>
+                </div>
+
+                {/* Dynamic Section Renaming (Universal Profession Adaptation) */}
+                <div className="space-y-2 pt-2 border-t border-gray-800">
+                  <label className="text-xs font-bold text-gray-300 flex items-center justify-between">
+                    <span>Section Custom Titles</span>
+                    <span className="text-[10px] text-gray-500">Universal Adaptation</span>
+                  </label>
+                  <div className="space-y-2 text-xs">
+                    {[
+                      { key: 'experience', label: 'Work Experience', placeholder: 'e.g. Clinical Experience, Legal Practice' },
+                      { key: 'projects', label: 'Key Projects', placeholder: 'e.g. Publications, Infrastructure Projects' },
+                      { key: 'skills', label: 'Skills & Tools', placeholder: 'e.g. Core Competencies, Clinical Skills' },
+                      { key: 'education', label: 'Education', placeholder: 'e.g. Academic History, Medical Training' },
+                      { key: 'certifications', label: 'Certifications', placeholder: 'e.g. Bar Admissions, Medical Licenses' },
+                    ].map(item => (
+                      <div key={item.key} className="flex flex-col gap-1">
+                        <span className="text-[11px] text-gray-400">{item.label}</span>
+                        <input
+                          type="text"
+                          value={customization.section_titles?.[item.key] || ''}
+                          placeholder={item.placeholder}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCustomization(prev => ({
+                              ...prev,
+                              section_titles: {
+                                ...(prev.section_titles || {}),
+                                [item.key]: val
+                              }
+                            }));
+                          }}
+                          className="bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Save as Custom Template Action */}
+                <div className="pt-3 border-t border-gray-800">
+                  <button
+                    onClick={() => {
+                      setCustomTemplateSaveName(`My Custom ${customization.template_id.charAt(0).toUpperCase() + customization.template_id.slice(1)}`);
+                      setIsSaveCustomModalOpen(true);
+                    }}
+                    className="w-full py-2.5 px-3 bg-brand-600/20 hover:bg-brand-600/30 text-brand-300 border border-brand-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
+                  >
+                    <Bookmark className="w-4 h-4 text-brand-400" />
+                    <span>Save as Custom Template</span>
+                  </button>
+                </div>
+
               </div>
             )}
 
@@ -1583,6 +1745,82 @@ export const ResumeStudioView: React.FC<ResumeStudioViewProps> = ({
         </aside>
 
       </div>
+
+      {/* Save Custom Template Modal */}
+      {isSaveCustomModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button
+              onClick={() => setIsSaveCustomModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-600/20 border border-brand-500/30 flex items-center justify-center">
+                <Bookmark className="w-5 h-5 text-brand-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Save Custom Template</h3>
+                <p className="text-xs text-gray-400">Save your current styling, fonts, and section names for future resumes.</p>
+              </div>
+            </div>
+
+            {customTemplateSaveSuccess ? (
+              <div className="py-6 text-center">
+                <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-400">
+                  <Check className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-semibold text-white">Template Saved Successfully!</p>
+                <p className="text-xs text-gray-400 mt-1">Available under "My Custom Templates" in the Template Gallery.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">Template Name</label>
+                  <input
+                    type="text"
+                    value={customTemplateSaveName}
+                    onChange={(e) => setCustomTemplateSaveName(e.target.value)}
+                    placeholder="e.g. My Executive Bio, Clinical Fellow Layout"
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-500"
+                    autoFocus
+                  />
+                </div>
+                <div className="p-3 bg-gray-950/60 rounded-xl border border-gray-800/80 text-xs text-gray-400 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Base Archetype:</span>
+                    <span className="text-gray-200 capitalize">{customization.template_id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Columns:</span>
+                    <span className="text-gray-200">{customization.column_layout === 'two_column' ? 'Two Column' : 'Single Column'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Accent:</span>
+                    <span className="text-gray-200 font-mono">{customization.accent_color}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end pt-2">
+                  <button
+                    onClick={() => setIsSaveCustomModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAsCustomTemplate}
+                    disabled={isSavingCustomTemplate || !customTemplateSaveName.trim()}
+                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  >
+                    {isSavingCustomTemplate ? 'Saving...' : 'Save Template'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

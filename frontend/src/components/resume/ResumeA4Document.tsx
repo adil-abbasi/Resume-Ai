@@ -15,15 +15,17 @@ export interface ResumeA4DocumentProps {
   pageRefs?: React.MutableRefObject<(HTMLDivElement | null)[]>;
 }
 
-// Map template IDs or prefixes to 5 design archetypes
-export type TemplateArchetype = 'modern' | 'minimal' | 'classic' | 'professional' | 'executive';
+// Map template IDs or prefixes to design archetypes
+export type TemplateArchetype = 'modern' | 'minimal' | 'classic' | 'professional' | 'executive' | 'academic';
 
-export function resolveArchetype(templateId: string): TemplateArchetype {
+export function resolveArchetype(templateId: string, headerStyle?: string): TemplateArchetype {
+  if (headerStyle === 'banner' || templateId?.includes('executive') || templateId?.startsWith('corp_exec')) return 'executive';
+  if (templateId?.includes('academic') || templateId?.startsWith('edu_') || templateId?.includes('professor') || templateId?.includes('phd')) return 'academic';
   if (!templateId) return 'modern';
   const id = templateId.toLowerCase();
-  if (id.startsWith('minimal') || id.includes('clean') || id.includes('zen') || id.includes('nordic')) return 'minimal';
-  if (id.startsWith('classic') || id.includes('times') || id.includes('oxford') || id.includes('roman') || id.includes('ivy')) return 'classic';
-  if (id.startsWith('prof') || id.includes('corporate') || id.includes('consulting') || id.includes('banking') || id.includes('fintech')) return 'professional';
+  if (id.startsWith('ats_') || id.startsWith('minimal') || id.includes('clean') || id.includes('zen') || id.includes('nordic')) return 'minimal';
+  if (id.startsWith('classic') || id.startsWith('law_') || id.includes('times') || id.includes('oxford') || id.includes('roman') || id.includes('ivy')) return 'classic';
+  if (id.startsWith('corp_') || id.startsWith('prof') || id.startsWith('fin_') || id.startsWith('biz_') || id.startsWith('health_') || id.startsWith('eng_') || id.includes('consulting') || id.includes('banking')) return 'professional';
   if (id.startsWith('exec') || id.includes('leadership') || id.includes('director') || id.includes('capital')) return 'executive';
   if (id.startsWith('creative') || id.includes('prism') || id.includes('studio') || id.includes('vertex')) return 'modern';
   return 'modern';
@@ -35,8 +37,10 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
   onPageCountChange,
   pageRefs
 }) => {
-  const archetype = resolveArchetype(customization.template_id);
+  const archetype = resolveArchetype(customization.template_id, customization.header_style);
   const accent = customization.accent_color || '#2563EB';
+
+  const getTitle = (key: string, fallback: string) => customization.section_titles?.[key] || fallback;
 
   // Typography & Sizing styles
   const baseFontSize = useMemo(() => {
@@ -135,17 +139,28 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
         list.push({ id: 'chunk-achievements-block', type: 'block', section: 'achievements' });
       }
 
-      if (secKey === 'languages' && profile.languages?.length > 0) {
+      if (secKey === 'publications' && profile.publications && profile.publications.length > 0) {
+        list.push({ id: 'chunk-publications-block', type: 'block', section: 'publications' });
+      }
+
+      if (secKey.startsWith('custom_') && customization.custom_sections?.length) {
+        const customSec = customization.custom_sections.find(cs => cs.id === secKey);
+        if (customSec) {
+          list.push({ id: `chunk-custom-${customSec.id}`, type: 'block', section: customSec.id });
+        }
+      }
+
+      if (secKey === 'languages' && profile.languages && profile.languages.length > 0) {
         list.push({ id: 'chunk-languages-block', type: 'block', section: 'languages' });
       }
 
-      if (secKey === 'extracurriculars' && profile.extracurriculars?.length > 0) {
+      if (secKey === 'extracurriculars' && profile.extracurriculars && profile.extracurriculars.length > 0) {
         list.push({ id: 'chunk-extracurriculars-block', type: 'block', section: 'extracurriculars' });
       }
     }
 
     return list;
-  }, [profile, customization.section_order, customization.section_visibility]);
+  }, [profile, customization.section_order, customization.section_visibility, customization.custom_sections]);
 
   const measureContainerRef = useRef<HTMLDivElement>(null);
   // Default to immediate display of all chunks to eliminate blank page flashes
@@ -368,7 +383,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-summary') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3.5 space-y-1">
-          {renderSectionHeading('Professional Summary')}
+          {renderSectionHeading(getTitle('summary', 'Professional Summary'))}
           <p className="text-gray-700 leading-relaxed text-justify">
             {profile.summary}
           </p>
@@ -380,7 +395,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-exp-header') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-2">
-          {renderSectionHeading('Work Experience')}
+          {renderSectionHeading(getTitle('experience', 'Professional Experience'))}
         </div>
       );
     }
@@ -424,7 +439,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-proj-header') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-2">
-          {renderSectionHeading('Key Projects')}
+          {renderSectionHeading(getTitle('projects', 'Key Projects'))}
         </div>
       );
     }
@@ -470,19 +485,19 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
       );
     }
 
-    // 5. Skills Block
+    // 5. Skills Block (Profession-neutral categorization)
     if (chunkId === 'chunk-skills-block') {
       const s = profile.skills;
       const categories: { label: string; items: string[] }[] = [];
-      if (s.technical_skills?.length) categories.push({ label: 'Languages & Core', items: s.technical_skills });
-      if (s.frameworks_libraries?.length) categories.push({ label: 'Frameworks & Libraries', items: s.frameworks_libraries });
-      if (s.developer_tools?.length) categories.push({ label: 'Cloud & Developer Tools', items: s.developer_tools });
-      if (s.soft_skills?.length) categories.push({ label: 'Professional & Leadership', items: s.soft_skills });
-      if (s.other?.length) categories.push({ label: 'Architectures & Methodologies', items: s.other });
+      if (s.technical_skills?.length) categories.push({ label: 'Core Skills & Methods', items: s.technical_skills });
+      if (s.frameworks_libraries?.length) categories.push({ label: 'Systems, Frameworks & Standards', items: s.frameworks_libraries });
+      if (s.developer_tools?.length) categories.push({ label: 'Tools, Software & Instrumentation', items: s.developer_tools });
+      if (s.soft_skills?.length) categories.push({ label: 'Professional & Leadership Strengths', items: s.soft_skills });
+      if (s.other?.length) categories.push({ label: 'Specializations & Methodologies', items: s.other });
 
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3.5 space-y-1.5">
-          {renderSectionHeading('Skills & Technical Expertise')}
+          {renderSectionHeading(getTitle('skills', 'Core Competencies & Skills'))}
           <div className="space-y-1">
             {categories.map((cat, cIdx) => (
               <div key={cIdx} className="text-xs text-gray-800 leading-snug">
@@ -499,7 +514,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-edu-header') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-2">
-          {renderSectionHeading('Education')}
+          {renderSectionHeading(getTitle('education', 'Education'))}
         </div>
       );
     }
@@ -524,7 +539,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
             <span className="font-semibold">{edu.institution} {edu.location ? `• ${edu.location}` : ''}</span>
             {edu.gpa && <span className="text-[11px] text-gray-500 font-medium">GPA: {edu.gpa}</span>}
           </div>
-          {edu.highlights?.length > 0 && (
+          {edu.highlights && edu.highlights.length > 0 && (
             <ul className="list-disc list-outside ml-3.5 space-y-0.5 text-[11.5px] text-gray-600">
               {edu.highlights.map((h, hIdx) => (
                 <li key={hIdx}>{h}</li>
@@ -539,7 +554,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-certs-block') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
-          {renderSectionHeading('Certifications & Licenses')}
+          {renderSectionHeading(getTitle('certifications', 'Certifications & Licenses'))}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
             {profile.certifications.map((c, cIdx) => (
               <div key={cIdx} className="text-xs text-gray-800 flex items-baseline justify-between">
@@ -559,7 +574,7 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
     if (chunkId === 'chunk-achievements-block') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
-          {renderSectionHeading('Honors & Achievements')}
+          {renderSectionHeading(getTitle('achievements', 'Honors & Achievements'))}
           <ul className="list-disc list-outside ml-3.5 space-y-0.5 text-xs text-gray-700">
             {profile.achievements.map((ach, aIdx) => (
               <li key={aIdx} className="leading-snug">{ach}</li>
@@ -569,11 +584,41 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
       );
     }
 
-    // 9. Languages Block
+    // 9. Publications Block
+    if (chunkId === 'chunk-publications-block') {
+      return (
+        <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
+          {renderSectionHeading(getTitle('publications', 'Publications & Presentations'))}
+          <ul className="list-disc list-outside ml-3.5 space-y-1 text-xs text-gray-700">
+            {profile.publications?.map((pub, pIdx) => (
+              <li key={pIdx} className="leading-snug">{pub}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+    // 10. Custom Section
+    if (chunkId.startsWith('chunk-custom-')) {
+      const secId = chunkId.replace('chunk-custom-', '');
+      const customSec = customization.custom_sections?.find(cs => cs.id === secId);
+      if (!customSec) return null;
+
+      return (
+        <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
+          {renderSectionHeading(customSec.title)}
+          <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+            {customSec.content}
+          </p>
+        </div>
+      );
+    }
+
+    // 11. Languages Block
     if (chunkId === 'chunk-languages-block') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
-          {renderSectionHeading('Languages')}
+          {renderSectionHeading(getTitle('languages', 'Languages'))}
           <p className="text-xs text-gray-700 leading-snug">
             {profile.languages?.join('  •  ')}
           </p>
@@ -581,11 +626,11 @@ export const ResumeA4Document: React.FC<ResumeA4DocumentProps> = ({
       );
     }
 
-    // 10. Extracurriculars Block
+    // 12. Extracurriculars Block
     if (chunkId === 'chunk-extracurriculars-block') {
       return (
         <div key={chunkId} data-chunk-id={chunkId} className="mb-3 space-y-1">
-          {renderSectionHeading('Leadership & Extracurriculars')}
+          {renderSectionHeading(getTitle('extracurriculars', 'Leadership & Activities'))}
           <ul className="list-disc list-outside ml-3.5 space-y-0.5 text-xs text-gray-700">
             {profile.extracurriculars?.map((ec, ecIdx) => (
               <li key={ecIdx} className="leading-snug">{ec}</li>

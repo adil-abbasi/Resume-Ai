@@ -97,23 +97,72 @@ class TemplateItem(BaseModel):
     id: str
     name: str
     description: str
-    category: str  # "Modern", "Minimal", "Professional", "Classic", "Creative", "ATS-friendly", "Student", "Executive", "One-page", "Two-page"
+    category: str
     is_pro: bool = False
     thumbnail_color: str = "#2563EB"
     secondary_color: str = "#1E293B"
     font_family: str = "Inter"
-    layout_type: str = "two_column"  # "single_column", "two_column", "header_accent", "compact_grid", "minimal_clean"
+    layout_type: str = "single_column"  # "single_column", "two_column", "left_sidebar", "right_sidebar", "header_accent", "academic_cv"
     spacing: str = "normal"
     tags: List[str] = Field(default_factory=list)
     rating: float = 4.9
     downloads_count: int = 1200
     recommended_for: List[str] = Field(default_factory=list)
+    industry: str = "General"
+    career_level: str = "All Levels"
+    columns: int = 1
+    header_style: str = "standard"  # "standard", "banner", "centered", "minimal_line", "left_accent"
+    sidebar_position: Optional[str] = "none"  # "none", "left", "right"
+    ats_compatibility: str = "High"  # "High", "Standard", "Executive"
+    default_section_titles: Dict[str, str] = Field(default_factory=dict)
+    is_custom: bool = False
+    created_by: Optional[str] = None
+
+
+class CustomTemplateCreate(BaseModel):
+    name: str
+    description: Optional[str] = "Custom user-designed template"
+    base_template_id: Optional[str] = "minimal_ats_1"
+    category: Optional[str] = "Custom"
+    industry: Optional[str] = "General"
+    font_family: Optional[str] = "Inter"
+    font_size: Optional[str] = "medium"
+    heading_size: Optional[str] = "medium"
+    accent_color: Optional[str] = "#2563EB"
+    secondary_color: Optional[str] = "#1E293B"
+    spacing: Optional[str] = "normal"
+    margins: Optional[str] = "normal"
+    column_layout: Optional[str] = "single_column"
+    header_style: Optional[str] = "standard"
+    sidebar_position: Optional[str] = "none"
+    section_order: Optional[List[str]] = Field(default_factory=list)
+    section_visibility: Optional[Dict[str, bool]] = Field(default_factory=dict)
+    section_titles: Optional[Dict[str, str]] = Field(default_factory=dict)
+
+
+class CustomTemplateUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    font_family: Optional[str] = None
+    font_size: Optional[str] = None
+    heading_size: Optional[str] = None
+    accent_color: Optional[str] = None
+    secondary_color: Optional[str] = None
+    spacing: Optional[str] = None
+    margins: Optional[str] = None
+    column_layout: Optional[str] = None
+    header_style: Optional[str] = None
+    sidebar_position: Optional[str] = None
+    section_order: Optional[List[str]] = None
+    section_visibility: Optional[Dict[str, bool]] = None
+    section_titles: Optional[Dict[str, str]] = None
 
 
 class TemplateListResponse(BaseModel):
     total: int
     categories: List[str]
     templates: List[TemplateItem]
+
 
 
 # --- Job Search & Candidate Fit Models ---
